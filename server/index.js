@@ -9,20 +9,22 @@ app.use(express.json());
 const db = mysql.createConnection({
   user: "root",
   host: "localhost",
-  password: "password",
-  database: "employeeSystem",
+  password: "",
+  database: "rfid",
 });
 
 app.post("/create", (req, res) => {
-  const name = req.body.name;
-  const age = req.body.age;
-  const country = req.body.country;
-  const position = req.body.position;
-  const wage = req.body.wage;
+
+    const idd = req.body.idd;
+    const name = req.body.name;
+    const gender = req.body.gender;
+    const email = req.body.email;
+    const number = req.body.number;
+    const position = req.body.position;
 
   db.query(
-    "INSERT INTO employees (name, age, country, position, wage) VALUES (?,?,?,?,?)",
-    [name, age, country, position, wage],
+    "INSERT INTO users (tag_id, name, gender, position, email,number) VALUES (?,?,?,?,?,?)",
+      [idd, name, gender, position, email,number],
     (err, result) => {
       if (err) {
         console.log(err);
@@ -34,7 +36,7 @@ app.post("/create", (req, res) => {
 });
 
 app.get("/employees", (req, res) => {
-  db.query("SELECT * FROM employees", (err, result) => {
+  db.query("SELECT * FROM users", (err, result) => {
     if (err) {
       console.log(err);
     } else {
@@ -43,12 +45,12 @@ app.get("/employees", (req, res) => {
   });
 });
 
-app.put("/update", (req, res) => {
-  const id = req.body.id;
-  const wage = req.body.wage;
+app.put("/update/id", (req, res) => {
+    const id = req.body.id;
+    const idd = req.body.idd;
   db.query(
-    "UPDATE employees SET wage = ? WHERE id = ?",
-    [wage, id],
+    "UPDATE users  SET tag_id = ? WHERE id = ?",
+    [idd, id],
     (err, result) => {
       if (err) {
         console.log(err);
@@ -59,9 +61,87 @@ app.put("/update", (req, res) => {
   );
 });
 
+app.put("/update/name", (req, res) => {
+    const name = req.body.name;
+    const id = req.body.id;
+  db.query(
+    "UPDATE users  SET name = ? WHERE id = ?",
+    [name, id],
+    (err, result) => {
+      if (err) {
+        console.log(err);
+      } else {
+        res.send(result);
+      }
+    }
+  );
+});
+
+app.put("/update/gender", (req, res) => {
+    const gender = req.body.gender;
+    const id = req.body.id;
+  db.query(
+    "UPDATE users  SET gender = ? WHERE id = ?",
+    [gender, id],
+    (err, result) => {
+      if (err) {
+        console.log(err);
+      } else {
+        res.send(result);
+      }
+    }
+  );
+});
+app.put("/update/position", (req, res) => {
+    const position = req.body.position;
+    const id = req.body.id;
+  db.query(
+    "UPDATE users  SET position = ? WHERE id = ?",
+    [position, id],
+    (err, result) => {
+      if (err) {
+        console.log(err);
+      } else {
+        res.send(result);
+      }
+    }
+  );
+});
+app.put("/update/email", (req, res) => {
+    const email = req.body.email;
+    const id = req.body.id;
+  db.query(
+    "UPDATE users  SET email = ? WHERE id = ?",
+    [email, id],
+    (err, result) => {
+      if (err) {
+        console.log(err);
+      } else {
+        res.send(result);
+      }
+    }
+  );
+});
+app.put("/update/number", (req, res) => {
+    const number = req.body.number;
+    const id = req.body.id;
+  db.query(
+    "UPDATE users  SET number = ? WHERE id = ?",
+    [number, id],
+    (err, result) => {
+      if (err) {
+        console.log(err);
+      } else {
+        res.send(result);
+      }
+    }
+  );
+});
+
+
 app.delete("/delete/:id", (req, res) => {
   const id = req.params.id;
-  db.query("DELETE FROM employees WHERE id = ?", id, (err, result) => {
+  db.query("DELETE FROM users WHERE id = ?", id, (err, result) => {
     if (err) {
       console.log(err);
     } else {
@@ -70,6 +150,6 @@ app.delete("/delete/:id", (req, res) => {
   });
 });
 
-app.listen(3001, () => {
-  console.log("Yey, your server is running on port 3001");
+app.listen(4000, () => {
+  console.log("Yey, your server is running on port 4000");
 });
