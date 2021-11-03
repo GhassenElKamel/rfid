@@ -200,12 +200,33 @@ const App = props => { {
     });
   };
     return (
+
+
+
+
 	<div className="App">
+
+         <div>
+    <Router>
       <div>
+        <nav>
+          <ul>
+            <li>
+              <Link to="/">Register</Link>
+            </li>
+            <li>
+              <Link to="/list">List</Link>
+            </li>
+          </ul>
+        </nav>
 
-          {/* A <Switch> looks through its children <Route>s and
-              renders the first one that matches the current URL. */}
+        {/* A <Switch> looks through its children <Route>s and
+            renders the first one that matches the current URL. */}
+        <Switch>
+          <Route path="/list">
+              <getEmployees />
 
+              {getEmployees()}
              {employeeList.map((val, key) => {
 		 console.log('test');
 		 return (
@@ -291,6 +312,9 @@ const App = props => { {
             </div>
           );
         })}
+          </Route>
+          <Route path="/">
+            <getEmployees />
 
 	    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous"/>
@@ -344,11 +368,16 @@ const App = props => { {
 		   <button onClick={getEmployees}>Show Card</button>
 
       </div>
+          </Route>
+        </Switch>
+      </div>
+    </Router>
+
+
       </div>
 
     </div>
-    );
-}
+    );}
                    }
 
 export default App;
