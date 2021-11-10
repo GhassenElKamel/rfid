@@ -1,14 +1,12 @@
 import "./App.css";
 import { useState } from "react";
 import Axios from "axios";
-import React from "react";
 import {
   BrowserRouter as Router,
   Switch,
   Route,
   Link
 } from "react-router-dom";
-
 
 const App = props => { {
 
@@ -24,7 +22,16 @@ const App = props => { {
     const [newNumber, setNewNumber] = useState("");
     const [position, setPosition] = useState("");
     const [newPosition, setNewPosition] = useState("");
-  const [employeeList, setEmployeeList] = useState([]);
+    const [employeeList, setEmployeeList] = useState([]);
+  const [state, setState] = useState({
+    key_id: ""
+  });
+
+  const handleChange = (e) => {
+    setState({
+      [e.target.key_id]: e.target.value
+    });
+  };
 
   const addEmployee = () => {
     Axios.post("http://localhost:4000/create", {
@@ -73,7 +80,6 @@ const App = props => { {
   };
 
     const updateEmployeeName = (id) => {
-	console.log(id);
     Axios.put("http://localhost:4000/update/name", { name: newName, id: id }).then(
       (response) => {
         setEmployeeList(
@@ -96,7 +102,7 @@ const App = props => { {
     };
 
         const updateEmployeeGender = (id) => {
-	console.log(id);
+
     Axios.put("http://localhost:4000/update/gender", { gender: newGender, id: id }).then(
       (response) => {
         setEmployeeList(
@@ -118,7 +124,6 @@ const App = props => { {
     );
 	};
         const updateEmployeePosition = (id) => {
-	console.log(id);
     Axios.put("http://localhost:4000/update/Position", { position: newPosition, id: id }).then(
       (response) => {
         setEmployeeList(
@@ -140,7 +145,6 @@ const App = props => { {
     );
 	};
         const updateEmployeeEmail = (id) => {
-	console.log(id);
     Axios.put("http://localhost:4000/update/email", { email: newEmail, id: id }).then(
       (response) => {
         setEmployeeList(
@@ -162,7 +166,6 @@ const App = props => { {
     );
 	};
         const updateEmployeeNumber = (id) => {
-	console.log(id);
     Axios.put("http://localhost:4000/update/number", { number: newNumber, id: id }).then(
       (response) => {
         setEmployeeList(
@@ -199,14 +202,23 @@ const App = props => { {
       setEmployeeList(response.data);
     });
   };
+    var trigger;
+      const getId = () => {
+    trigger= setInterval(function(){
+        Axios.get("http://localhost:4000/get-test").then((response) => {
+            setState({ key_id: response.data.UIDresult })
+            console.log( response.data.UIDresult)
+        }); }, 3000);
+  };
+    const stopId = () => {
+         clearInterval(trigger);
+    };
+
     return (
 
 
-
-
 	<div className="App">
-
-         <div>
+            <div>
     <Router>
       <div>
         <nav>
@@ -222,14 +234,13 @@ const App = props => { {
 
         {/* A <Switch> looks through its children <Route>s and
             renders the first one that matches the current URL. */}
-        <Switch>
+          <Switch>
           <Route path="/list">
-              <getEmployees />
 
-              {getEmployees()}
              {employeeList.map((val, key) => {
-		 console.log('test');
-		 return (
+
+                 return (
+
             <div className="employee">
 		  <div>
 		<h3>Id: {val.tag_id}</h3>
@@ -250,7 +261,7 @@ const App = props => { {
               }}
 
                       />
-		      <button type="button" class="btn btn-primary btn-sm" onClick={() => {updateEmployeeId(val.id);}}>test</button>
+		      <button type="button" class="btn btn-primary btn-sm" onClick={() => {updateEmployeeId(val.id);}}>*</button>
 
 
 
@@ -286,7 +297,7 @@ const App = props => { {
                   placeholder={val.email}
                   onChange={(event) => {
                       setNewEmail(event.target.value);
-		      console.log(event.target.value);
+		      //console.log(event.target.value);
                   }}
                 />
 		      <button type="button" onClick={() => {updateEmployeeEmail(val.id);}}>*</button>
@@ -314,7 +325,6 @@ const App = props => { {
         })}
           </Route>
           <Route path="/">
-            <getEmployees />
 
 	    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous"/>
@@ -322,17 +332,21 @@ const App = props => { {
 	<div className="information">
         <label>ID:</label>
         <input
-          type="number"
-          onChange={(event) => {
-            setId(event.target.value);
-          }}
+          type="text"
+          onChange={handleChange}
+            value={state.key_id}
         />
-          <label>Name:</label>
+            <div class="wrapper">
+            <button onClick={getId} class="small-but">start</button>
+            <button onClick={stopId} class="small-but">stop</button>
+            </div>
+                <label>Name:</label>
         <input
           type="text"
           onChange={(event) => {
             setName(event.target.value);
-          }}
+            }}
+
         />
         <label>gender:</label>
         <input
@@ -365,7 +379,7 @@ const App = props => { {
         <button onClick={addEmployee}>Add Card</button>
       </div>
 	      <div className="employees">
-		   <button onClick={getEmployees}>Show Card</button>
+		  <button onClick={getEmployees}>Show Card</button>
 
       </div>
           </Route>

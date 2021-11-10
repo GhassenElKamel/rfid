@@ -149,6 +149,22 @@ app.delete("/delete/:id", (req, res) => {
     }
   });
 });
+const bodyParser = require('body-parser');
+
+app.use(bodyParser.urlencoded({ extended: true }));
+
+var data;
+app.post('/post-test', (req, res) => {
+    console.log('Got body:', req.body);
+    data=req.body;
+
+    app.get('/get-test', (req, res) => {
+    res.send(data);
+
+});
+});
+
+
 
 app.listen(4000, () => {
   console.log("Yey, your server is running on port 4000");
