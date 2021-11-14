@@ -45,6 +45,18 @@ app.get("/employees", (req, res) => {
   });
 });
 
+app.get("/empl/:id", (req, res) => {
+    const id = req.params.id;
+    db.query("SELECT * FROM users where tag_id =?",id, (err, result) => {
+    if (err) {
+      console.log(err);
+    } else {
+      res.send(result);
+    }
+  });
+});
+
+
 app.put("/update/id", (req, res) => {
     const id = req.body.id;
     const idd = req.body.idd;
