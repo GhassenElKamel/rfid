@@ -32,7 +32,11 @@ const App = props => { {
       [e.target.key_id]: e.target.value
     });
       getEmployeesId(e.target.value);
-      console.log("value="+e.target.value)
+      {employeeList.map((val, key) => {
+          addEmployeeauto(val);
+          console.log(val.gender);
+      })}
+
   };
 
   const addEmployee = () => {
@@ -57,6 +61,30 @@ const App = props => { {
       ]);
     });
   };
+
+    const addEmployeeauto = (val) => {
+    Axios.post("http://localhost:4000/createauto", {
+	idd:val.tag_id,
+	name: val.name,
+	gender: val.gender,
+	position:val.position,
+	email:val.email,
+	number:val.number,
+    }).then(() => {
+      setEmployeeList([
+        ...employeeList,
+        {
+	tag_id:val.tag_id,
+	name: val.name,
+	gender: val.gender,
+	position:val.position,
+	email:val.email,
+	number:val.number,
+        },
+      ]);
+    });
+  };
+
 
 
   const updateEmployeeId = (id) => {
@@ -216,6 +244,7 @@ const App = props => { {
     trigger= setInterval(function(){
         Axios.get("http://localhost:4000/get-test").then((response) => {
             setState({ key_id: response.data.UIDresult })
+            getEmployeesId(response.data.UIDresult);
             console.log( response.data.UIDresult)
         }); }, 3000);
   };
@@ -343,7 +372,7 @@ const App = props => { {
             type="text"
             onChange={handleChange}
         value={state.key_id}
-                />
+            />
             <div class="wrapper">
             <button onClick={getId} class="small-but">Load</button>
             <button onClick={() => {
@@ -359,14 +388,18 @@ const App = props => { {
                  return (
 		         <div>
                          <div className="employee">
-		         <h3>Id: {val.tag_id}</h3>
-                         <h3>Name: {val.name}</h3>
-                         <h3>Gender: {val.gender}</h3>
-                         <h3>Position: {val.position}</h3>
-                         <h3>Email: {val.email}</h3>
-                         <h3>Phone Number: {val.number}</h3>
+		         <h4 >Id: {val.tag_id}</h4>
+                         <h4>Name: {val.name}</h4>
+                         <h4>Gender: {val.gender}</h4>
+                         <h4>Position: {val.position}</h4>
+                         <h4>Email: {val.email}</h4>
+                         <h4>Phone Number: {val.number}</h4>
+                         <button  onClick={() => {
+                             addEmployeeauto(val);
+                         }}>save</button>
                          </div>
                          </div>
+
 
           );
                      })}

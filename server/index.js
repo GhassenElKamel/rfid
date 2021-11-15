@@ -35,6 +35,29 @@ app.post("/create", (req, res) => {
   );
 });
 
+app.post("/createauto", (req, res) => {
+
+    const idd = req.body.idd;
+    const name = req.body.name;
+    const gender = req.body.gender;
+    const email = req.body.email;
+    const number = req.body.number;
+    const position = req.body.position;
+
+  db.query(
+    "INSERT INTO users (tag_id, name, gender, position, email,number) VALUES (?,?,?,?,?,?)",
+      [idd, name, gender, position, email,number],
+    (err, result) => {
+      if (err) {
+        console.log(err);
+      } else {
+        res.send("Values Inserted");
+      }
+    }
+  );
+});
+
+
 app.get("/employees", (req, res) => {
   db.query("SELECT * FROM users", (err, result) => {
     if (err) {
