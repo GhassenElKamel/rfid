@@ -60,3 +60,21 @@ input {
  .small-but {
 
 }
+			body { font-family: 'Segoe UI'; }
+			ul, li { padding: 0; margin: 0; list-style-type: none; }
+			.tags { font-size: 35px; }
+			.tag {
+				float: left;
+				border: 4px solid;
+				margin: 5px;
+				width: 350px;
+				padding: 100px 0;
+				text-align: center;
+
+			}
+			.tag.IN { color: blue; background: #25FA2FA0; font-weight: bold; }
+			.tag.OUT { color: red;background: lightgray }
+			.sectionTitle { margin: 20px  ; font-size: 25px; color: coral; }
+			.entry { clear: both; border: 1px solid; margin: 20px 0px}
+			.entry span { float: left;  margin-right: 120px; }
+			.entry .name { width: 125px; margin-right:120px; margin-left:60px; font-size:15px ;}

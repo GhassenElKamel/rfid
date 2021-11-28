@@ -8,6 +8,11 @@ import {
   Link
 } from "react-router-dom";
 
+import $ from 'jquery';
+import { useEffect } from 'react';
+import useScript from './hooks.js';
+import moment from 'moment';
+
 const App = props => { {
 
     const [idd, setId] = useState(0);
@@ -27,21 +32,20 @@ const App = props => { {
     key_id: ""
   });
 
-  const handleChange = (e) => {
+    var dom = document.getElementById('texti');
+
+
+    const handleChange = (e) => {
     setState({
       [e.target.key_id]: e.target.value
     });
-      getEmployeesId(e.target.value);
-      {employeeList.map((val, key) => {
-          addEmployeeauto(val);
-          console.log(val.gender);
-      })}
 
   };
 
-  const addEmployee = () => {
+    const addEmployee = () => {
+        console.log(state.key_id);
     Axios.post("http://localhost:4000/create", {
-	idd:idd,
+	idd:state.key_id,
 	name: name,
 	gender: gender,
 	position:position,
@@ -51,7 +55,7 @@ const App = props => { {
       setEmployeeList([
         ...employeeList,
         {
-	tag_id:idd,
+	tag_id:state.key_id,
 	name: name,
 	gender: gender,
 	position:position,
@@ -235,7 +239,8 @@ const App = props => { {
 
   const getEmployeesId = (id) => {
       Axios.get(`http://localhost:4000/empl/${id}`).then((response) => {
-        setEmployeeList(response.data);
+          setEmployeeList(response.data);
+
     });
   };
 
@@ -246,8 +251,160 @@ const App = props => { {
             setState({ key_id: response.data.UIDresult })
             getEmployeesId(response.data.UIDresult);
             console.log( response.data.UIDresult)
+
         }); }, 3000);
-  };
+      };
+
+
+    //             var previousValue =state.key_id;
+    // if(dom != null){
+    //     if ($('#texti').val().length != 0 || undefined && previousValue!=null)
+    //     {
+    //         alert("test");
+
+    //   //               {employeeList.map((val, key) => {
+    //   //                   addEmployeeauto(val);
+    //   //                   console.log(val.name);
+    //   // })}
+    //     }
+
+    // }
+
+
+    useScript('https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.1/moment.min.js');
+ var Request = function(action, payload) {
+	this.Action = action;
+	this.Payload = payload || null;
+    };
+
+            console.log("once")
+    var Service = function(url) {
+	this.Url = url;
+
+	var self = this;
+	var ws = null;
+	var isStart = false;
+
+	var responseHandlers = [];
+
+	this.AttachResponseHandler = function(contextAction, handler) {
+	    responseHandlers.push({
+		ContextAction: contextAction,
+		Handle: handler
+	    });
+
+	    return this;
+	};
+
+	this.GetResponseHandler = function(contextAction) {
+	    for(var i in responseHandlers) {
+		if(responseHandlers[i].ContextAction == contextAction) {
+		    return responseHandlers[i];
+		}
+	    }
+
+	    return null;
+	};
+
+	this.Start = function(callback) {
+	    if(isStart) {
+		throw "Service has been already started";
+	    }
+
+	    isStart = true;
+
+	    ws = new WebSocket('ws://' + this.Url);
+            console.log( this.Url);
+
+	    ws.onopen = function() {
+		callback(self);
+	    };
+
+	    ws.onmessage = function (evt) {
+		var response = JSON.parse(evt.data);
+		var responseHandler = self.GetResponseHandler(response.Context.Action);
+
+		if(responseHandler != null) {
+		    responseHandler.Handle(response.Payload, self);
+		}
+	    };
+
+	    ws.onclose = function() {};
+	};
+
+	this.SendRequest = function(request) {
+	    ws.send(JSON.stringify(request));
+	};
+
+	return this;
+    };
+
+    var TAGS = null;
+
+    var getTagById = function(id) {
+	for(var i in TAGS) {
+	    if(TAGS[i].Id == id) {
+		return TAGS[i];
+	    }
+	}
+
+	return null;
+    };
+
+    var $entry = function(entry) {
+	var _tag = getTagById(entry.TagId);
+
+	return $('<li />')
+	    .addClass('entry')
+	    .append($('<span />').addClass('name').append(_tag.Name))
+            .append($('<span />').addClass('time').append(moment(entry.Time, 'x').format('DD.MM.YYYY HH:mm:ss')))
+	    .append($('<span />').addClass('dir').append(entry.Dir));
+    };
+
+    $(document).ready(function() {
+	new Service('192.168.110.101:8080')
+	    .AttachResponseHandler('GetEntries', function(entries) {
+		var $entries = $('.entries');
+
+		$.each(entries.reverse(), function() {
+		    $entries.append($entry(this));
+		});
+	    })
+	    .AttachResponseHandler('GetTags', function(tags, service) {
+		TAGS = tags;
+
+		var $tags = $('.tags');
+
+		$.each(tags, function() {
+		    $tags
+			.append(
+			    $('<li />')
+				.addClass('tag')
+				.addClass('id' + this.Id)
+				.addClass(this.CurrentDir == null ? 'OUT' : this.CurrentDir.Dir)
+				.append(this.Name)
+                                .append('<img src="https://www.freeiconspng.com/thumbs/person-icon/clipart--person-icon--cliparts-15.png" alt="ghassen" width="200" height="200">')
+
+			);
+		});
+
+		service.SendRequest(new Request('GetEntries'));
+	    })
+	    .AttachResponseHandler('TagModified', function(entry) {
+		$('.tag.id' + entry.TagId)
+		    .removeClass('IN')
+		    .removeClass('OUT')
+		    .addClass(entry.Dir);
+
+		$('.entries').prepend($entry(entry));
+	    })
+	    .Start(function(service) {
+		service.SendRequest(new Request('GetTags'));
+	    });
+    });
+
+
+
 
     return (
 
@@ -361,16 +518,23 @@ const App = props => { {
             </div>
           );
         })}
-          </Route>
+                      </Route>
             <Route path="/load">
-                <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+        		<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.1/moment.min.js"></script>
+		<title>Rfid Manager</title>
+
+
+            <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 	        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous"/>
 	        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous"/>
 	        <div className="information">
                 <label>ID:</label>
-                <input
-            type="text"
-            onChange={handleChange}
+            <input
+        id="texti"
+        type="text"
+        onChange={handleChange}
         value={state.key_id}
             />
             <div class="wrapper">
@@ -378,9 +542,13 @@ const App = props => { {
             <button onClick={() => {
                 getEmployeesId(state.key_id);
                 console.log(state.key_id)
-            }}>search</button>
-        </div>
+                    }}>search</button>
 
+                <ul class="tags" id="tags"></ul>
+		<div style={{clear : 'both'}}></div>
+		<ul class="entries"></ul>
+
+        </div>
 
 
                      {employeeList.map((val, key) => {
@@ -396,8 +564,8 @@ const App = props => { {
                          <h4>Phone Number: {val.number}</h4>
                          <button  onClick={() => {
                              addEmployeeauto(val);
-                         }}>save</button>
-                         </div>
+                                  }}>save</button>
+                             </div>
                          </div>
 
 
@@ -406,12 +574,13 @@ const App = props => { {
 
                 </div>
                 </Route>
-          <Route path="/">
+                <Route path="/">
 
-	    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous"/>
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous"/>
-	<div className="information">
+                    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.1/moment.min.js"></script>
+	            <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+	            <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous"/>
+	            <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous"/>
+	            <div className="information">
         <label>ID:</label>
         <input
           type="text"
